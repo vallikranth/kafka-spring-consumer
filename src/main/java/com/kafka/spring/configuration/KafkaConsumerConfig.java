@@ -18,7 +18,7 @@ import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 
 @Configuration
 @ComponentScan("com.kafka.spring")
@@ -30,9 +30,9 @@ public class KafkaConsumerConfig {
 	
 	@Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Serializable>> kafkaListenerContainerFactory() {
-		//ConcurrentMessageListenerContainer<String, Serializable> multiListenerFactory = new ConcurrentMessageListenerContainer<>();
 		ConcurrentKafkaListenerContainerFactory<String, Serializable> multiListenerFactory = new ConcurrentKafkaListenerContainerFactory<>();
 		multiListenerFactory.setConsumerFactory(consumerFactory());
+		multiListenerFactory.setMessageConverter(new StringJsonMessageConverter());
 		multiListenerFactory.setConcurrency(env.getRequiredProperty("consumer.concurrency", Integer.class));
 		multiListenerFactory.getContainerProperties().setIdleEventInterval(env.getRequiredProperty("consumer.idleEventInterval.ms", Long.class));
 		multiListenerFactory.getContainerProperties().setPollTimeout(env.getRequiredProperty("consumer.pollTimeout.ms", Long.class));
@@ -51,6 +51,7 @@ public class KafkaConsumerConfig {
 	    ConcurrentKafkaListenerContainerFactory<String, Serializable> factory =
 	            new ConcurrentKafkaListenerContainerFactory<>();
 	    factory.setConsumerFactory(consumerFactory());
+	    factory.setMessageConverter(new StringJsonMessageConverter());
 	    factory.setBatchListener(true);
 	    return factory;
 	}
@@ -68,7 +69,7 @@ public class KafkaConsumerConfig {
                 StringDeserializer.class);
               configProps.put(
             		  ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, 
-                JsonDeserializer.class);
+            		  StringDeserializer.class);
         configProps.put(
         		ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, 
         		env.getProperty("consumer.no-offset-strategy"));

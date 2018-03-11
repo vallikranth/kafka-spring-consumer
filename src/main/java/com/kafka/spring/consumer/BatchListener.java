@@ -18,7 +18,7 @@ public class BatchListener {
 	private static final Logger logger = LoggerFactory.getLogger(BatchListener.class);
 	
 	@KafkaListener(topics = "test", containerFactory = "batchFactory")
-	public void listen(@Payload List<String> input,
+	public void listen(@Payload(required=false) List<String> input,
 	        @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) List<Integer> key,
 	        @Header(KafkaHeaders.RECEIVED_PARTITION_ID) List<Integer> partition,
 	        @Header(KafkaHeaders.RECEIVED_TOPIC) List<String> topic,

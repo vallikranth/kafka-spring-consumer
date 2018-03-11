@@ -11,13 +11,15 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+import com.kafka.spring.consumer.model.Person;
+
 @Component
 public class TopicListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(TopicListener.class);
 	
 	@KafkaListener(topics = "test",clientIdPrefix = "testListener")
-	public void listen(@Payload String input,
+	public void listen(@Payload(required=false) String input,
 	        @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) Integer key,
 	        @Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition,
 	        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
@@ -31,5 +33,16 @@ public class TopicListener {
 	//@KafkaListener(topics = "test", containerFactory="kafkaListenerContainerFactory")
 	public void listen2(ConsumerRecord<String, Serializable> event) {
 		logger.info("key:{}, value:{} offset:{} receive tme:{}, ",event.key(),event.value(),event.offset(), event.timestamp());
+	}
+	
+	@KafkaListener(topics = "persons",clientIdPrefix = "personListener")
+	public void listenPersonTopic(@Payload(required=false) Person input,
+	        @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) Integer key,
+	        @Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition,
+	        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+	        @Header(KafkaHeaders.OFFSET) long offset,
+	        @Header(KafkaHeaders.RECEIVED_TIMESTAMP) long ts) {
+		logger.info("Consumed input:{} from topic: {} with key: {} offset: {} receive time:{}", input.getFirstName(), topic,key,offset,ts);
+		
 	}
 }
